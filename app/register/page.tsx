@@ -10,16 +10,6 @@ import type { UserRole } from "@/lib/supabase";
 // NexusForge OS — Registro
 // ═══════════════════════════════════════════════
 
-const SPECIALTIES = [
-  "Frontend",
-  "Backend",
-  "Full Stack",
-  "Mecánica",
-  "Electrónica",
-  "Data Science",
-  "DevOps",
-  "Diseño UX",
-];
 
 const ROLES: { id: UserRole; label: string; description: string; icon: React.ReactNode }[] = [
   {
@@ -57,7 +47,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [specialty, setSpecialty] = useState("");
+  const specialty = "General";
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -85,11 +75,6 @@ export default function RegisterPage() {
       return;
     }
 
-    if (!specialty) {
-      setError("Selecciona tu especialidad");
-      return;
-    }
-
     const err = await signUp(email, password, username, role, specialty);
     if (err) {
       setError(err);
@@ -99,412 +84,328 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* ── Left Panel: Branding ── */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-nf-void items-center justify-center">
-        {/* Animated grid background */}
-        <div className="grid-bg" />
-
-        {/* Glow effects */}
-        <div
-          className="absolute w-[500px] h-[500px] rounded-full opacity-20 animate-glow-pulse"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(6,182,212,0.4) 0%, transparent 70%)",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
-        />
-        <div
-          className="absolute w-[350px] h-[350px] rounded-full opacity-15 animate-glow-pulse"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(139,92,246,0.4) 0%, transparent 70%)",
-            top: "60%",
-            left: "60%",
-            animationDelay: "1s",
-          }}
-        />
-
-        {/* Brand content */}
-        <div className="relative z-10 text-center px-12 animate-fade-in">
-          {/* Logo */}
-          <div className="mb-8 inline-flex items-center justify-center">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-lg bg-nf-surface border border-nf-panel-border flex items-center justify-center glow-border-cyan">
-                <svg
-                  width="40"
-                  height="40"
-                  viewBox="0 0 40 40"
-                  fill="none"
-                  className="glow-diamante"
-                >
-                  <path
-                    d="M20 4L36 12V28L20 36L4 28V12L20 4Z"
-                    stroke="#06B6D4"
-                    strokeWidth="2"
-                    fill="rgba(6,182,212,0.1)"
-                  />
-                  <path
-                    d="M20 4V36M4 12L36 28M36 12L4 28"
-                    stroke="#06B6D4"
-                    strokeWidth="1.5"
-                    opacity="0.5"
-                  />
-                  <circle cx="20" cy="20" r="4" fill="#06B6D4" opacity="0.8" />
-                </svg>
-              </div>
-              <div
-                className="absolute inset-[-8px] border border-nf-cyan/20 rounded-xl"
-                style={{ animation: "spin-slow 20s linear infinite" }}
-              />
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-nf-background p-4 sm:p-6 lg:p-8">
+      {/* Centered card window */}
+      <div className="w-full max-w-4xl min-h-[740px] lg:h-[780px] rounded-[24px] border border-nf-panel-border bg-nf-surface flex flex-col lg:flex-row overflow-hidden shadow-[0_24px_70px_rgba(0,0,0,0.85)] relative animate-grow-card">
+        
+        {/* ── Left Panel: Register Form (Scrollable) ── */}
+        <div className="w-full lg:w-1/2 p-8 lg:p-12 flex flex-col justify-between bg-nf-surface relative z-10 overflow-y-auto custom-scrollbar lg:h-full">
+          
+          {/* OS Window Dots */}
+          <div className="absolute top-6 left-8 flex gap-1.5 z-20">
+            <div className="w-2.5 h-2.5 rounded-full bg-white/[0.06]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-white/[0.06]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-white/[0.06]" />
           </div>
 
-          <h1
-            className="text-4xl font-extrabold tracking-tight mb-3"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            <span className="text-nf-secondary">Únete</span>
-            <span className="text-nf-text-readable"> a la Forja</span>
-          </h1>
-
-          <p className="text-nf-text-muted text-sm max-w-sm mx-auto leading-relaxed">
-            Crea tu perfil de operador y comienza a construir proyectos
-            extraordinarios con tu equipo.
-          </p>
-
-          {/* Stats preview */}
-          <div className="mt-10 grid grid-cols-3 gap-4 max-w-xs mx-auto">
-            {[
-              { value: "∞", label: "Proyectos" },
-              { value: "0", label: "Monedas" },
-              { value: "I", label: "Rango" },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="glass rounded p-3 text-center"
+          <div className="my-auto pt-6 pb-6">
+            {/* Form header */}
+            <div className="mb-6">
+              <h2
+                className="text-3xl font-extrabold text-nf-on-surface tracking-tight mb-2"
+                style={{ fontFamily: "var(--font-display)" }}
               >
-                <div
-                  className="text-nf-cyan text-lg font-bold"
-                  style={{ fontFamily: "var(--font-mono)" }}
-                >
-                  {stat.value}
-                </div>
-                <div
-                  className="text-nf-text-muted mt-1"
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Right Panel: Register Form ── */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-nf-background relative overflow-y-auto">
-        <div className="grid-bg lg:hidden" />
-
-        <div className="w-full max-w-md relative z-10 animate-slide-up py-8">
-          {/* Mobile logo */}
-          <div className="lg:hidden text-center mb-8">
-            <h1
-              className="text-3xl font-extrabold tracking-tight"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              <span className="text-nf-primary">Nexus</span>
-              <span className="text-nf-text-readable">Forge</span>
-              <span className="text-nf-text-muted ml-1 text-lg font-medium">
-                OS
-              </span>
-            </h1>
-          </div>
-
-          {/* Form header */}
-          <div className="mb-6">
-            <h2
-              className="text-2xl font-bold text-nf-on-surface mb-2"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Crear Cuenta
-            </h2>
-            <p className="text-nf-text-muted text-sm">
-              Registra tu perfil de operador
-            </p>
-          </div>
-
-          {/* Error */}
-          {error && (
-            <div className="mb-5 p-3 rounded bg-nf-error-container/20 border border-nf-error/30 text-nf-error text-sm animate-fade-in">
-              {error}
+                Create account
+              </h2>
+              <p className="text-nf-text-muted text-sm font-medium">
+                Registra tu perfil de operador en la forja.
+              </p>
             </div>
-          )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* ── Role Selection ── */}
-            <div>
-              <span className="nf-input-label">Tipo de cuenta</span>
-              <div className="grid grid-cols-2 gap-3 mt-1">
-                {ROLES.map((r) => {
-                  const isSelected = role === r.id;
-                  return (
-                    <button
-                      key={r.id}
-                      type="button"
-                      onClick={() => setRole(r.id)}
-                      className={`
-                        relative flex flex-col items-center gap-2 p-4 rounded-lg border
-                        transition-all duration-200 text-center group cursor-pointer
-                        ${
-                          isSelected
-                            ? r.id === "maestro"
-                              ? "border-nf-oro bg-nf-oro/5 shadow-[0_0_15px_rgba(251,191,36,0.15)]"
-                              : "border-nf-cyan bg-nf-cyan/5 shadow-[0_0_15px_rgba(6,182,212,0.15)]"
-                            : "border-nf-panel-border bg-nf-surface-container/50 hover:border-nf-surface-bright hover:bg-nf-surface-container"
-                        }
-                      `}
-                    >
-                      {/* Icon */}
-                      <div
-                        className={`transition-colors duration-200 ${
-                          isSelected
-                            ? r.id === "maestro"
-                              ? "text-nf-oro"
-                              : "text-nf-cyan"
-                            : "text-nf-text-muted group-hover:text-nf-on-surface"
-                        }`}
+            {/* Error */}
+            {error && (
+              <div className="mb-5 p-3 rounded-lg bg-nf-error-container/10 border border-nf-error/20 text-nf-error text-xs animate-fade-in font-mono">
+                {error}
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* ── Role Selection ── */}
+              <div>
+                <span className="nf-input-label !mb-2">Account Type</span>
+                <div className="grid grid-cols-2 gap-3">
+                  {ROLES.map((r) => {
+                    const isSelected = role === r.id;
+                    return (
+                      <button
+                        key={r.id}
+                        type="button"
+                        onClick={() => setRole(r.id)}
+                        className={`
+                          relative flex flex-col items-center gap-2 p-3 rounded-xl border cursor-pointer
+                          transition-all duration-250 text-center group
+                          ${
+                            isSelected
+                              ? r.id === "maestro"
+                                ? "border-nf-oro bg-nf-oro/5 shadow-[0_0_12px_rgba(251,191,36,0.08)]"
+                                : "border-nf-cyan bg-nf-cyan/5 shadow-[0_0_12px_rgba(152,166,255,0.08)]"
+                              : "border-nf-panel-border/80 bg-nf-surface-dim/40 hover:border-nf-surface-bright hover:bg-nf-surface-container/30"
+                          }
+                        `}
                       >
-                        {r.icon}
-                      </div>
-
-                      {/* Label */}
-                      <span
-                        className={`text-sm font-bold transition-colors duration-200 ${
-                          isSelected
-                            ? "text-nf-on-surface"
-                            : "text-nf-text-muted group-hover:text-nf-on-surface"
-                        }`}
-                        style={{ fontFamily: "var(--font-display)" }}
-                      >
-                        {r.label}
-                      </span>
-
-                      {/* Description */}
-                      <span
-                        className="text-nf-text-muted leading-tight"
-                        style={{
-                          fontFamily: "var(--font-mono)",
-                          fontSize: "10px",
-                          fontWeight: 500,
-                        }}
-                      >
-                        {r.description}
-                      </span>
-
-                      {/* Selected indicator */}
-                      {isSelected && (
+                        {/* Icon */}
                         <div
-                          className={`absolute top-2 right-2 w-2 h-2 rounded-full animate-glow-pulse ${
-                            r.id === "maestro" ? "bg-nf-oro" : "bg-nf-cyan"
+                          className={`transition-colors duration-200 ${
+                            isSelected
+                              ? r.id === "maestro"
+                                ? "text-nf-oro"
+                                : "text-nf-cyan"
+                              : "text-nf-text-muted group-hover:text-nf-on-surface"
                           }`}
-                        />
-                      )}
-                    </button>
-                  );
-                })}
+                        >
+                          {r.icon}
+                        </div>
+
+                        {/* Label */}
+                        <span
+                          className={`text-xs font-bold transition-colors duration-200 ${
+                            isSelected
+                              ? "text-nf-on-surface"
+                              : "text-nf-text-muted group-hover:text-nf-on-surface"
+                          }`}
+                          style={{ fontFamily: "var(--font-display)" }}
+                        >
+                          {r.label}
+                        </span>
+
+                        {/* Selected indicator */}
+                        {isSelected && (
+                          <div
+                            className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full animate-glow-pulse ${
+                              r.id === "maestro" ? "bg-nf-oro" : "bg-nf-cyan"
+                            }`}
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="register-username" className="nf-input-label">
-                Nombre de usuario
-              </label>
-              <input
-                id="register-username"
-                type="text"
-                className="nf-input"
-                placeholder="forge_master_42"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                autoComplete="username"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="register-email" className="nf-input-label">
-                Correo electrónico
-              </label>
-              <input
-                id="register-email"
-                type="email"
-                className="nf-input"
-                placeholder="operador@nexusforge.io"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="register-password" className="nf-input-label">
-                Contraseña
-              </label>
-              <div className="relative">
+              <div>
+                <label htmlFor="register-username" className="nf-input-label">
+                  Username
+                </label>
                 <input
-                  id="register-password"
-                  type={showPassword ? "text" : "password"}
-                  className="nf-input pr-12"
-                  placeholder="Mínimo 6 caracteres"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  id="register-username"
+                  type="text"
+                  className="nf-input !bg-nf-void/60 !border-nf-panel-border/80 focus:!border-nf-primary-bright/60 focus:!shadow-[0_0_15px_rgba(179,157,255,0.08)]"
+                  placeholder="forge_master_42"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="register-email" className="nf-input-label">
+                  Email address
+                </label>
+                <input
+                  id="register-email"
+                  type="email"
+                  className="nf-input !bg-nf-void/60 !border-nf-panel-border/80 focus:!border-nf-primary-bright/60 focus:!shadow-[0_0_15px_rgba(179,157,255,0.08)]"
+                  placeholder="operador@nexusforge.io"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="register-password" className="nf-input-label">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="register-password"
+                    type={showPassword ? "text" : "password"}
+                    className="nf-input pr-12 !bg-nf-void/60 !border-nf-panel-border/80 focus:!border-nf-primary-bright/60 focus:!shadow-[0_0_15px_rgba(179,157,255,0.08)]"
+                    placeholder="Mínimo 6 caracteres"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-nf-text-muted hover:text-nf-primary transition-colors"
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {showPassword ? (
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                      </svg>
+                    ) : (
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="register-confirm-password"
+                  className="nf-input-label"
+                >
+                  Confirm Password
+                </label>
+                <input
+                  id="register-confirm-password"
+                  type="password"
+                  className="nf-input !bg-nf-void/60 !border-nf-panel-border/80 focus:!border-nf-primary-bright/60 focus:!shadow-[0_0_15px_rgba(179,157,255,0.08)]"
+                  placeholder="Repite tu contraseña"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   autoComplete="new-password"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-nf-text-muted hover:text-nf-primary transition-colors"
-                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                >
-                  {showPassword ? (
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
               </div>
-            </div>
 
-            <div>
-              <label
-                htmlFor="register-confirm-password"
-                className="nf-input-label"
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="nf-btn-primary mt-3 cursor-pointer py-3.5 rounded-xl text-nf-void bg-gradient-to-r from-nf-primary to-nf-primary-bright font-bold uppercase tracking-wider text-xs shadow-lg hover:shadow-nf-primary/20 transition-all active:scale-[0.98]"
+                id="register-submit"
               >
-                Confirmar contraseña
-              </label>
-              <input
-                id="register-confirm-password"
-                type="password"
-                className="nf-input"
-                placeholder="Repite tu contraseña"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                autoComplete="new-password"
-              />
-            </div>
-
-            {/* Specialty chips */}
-            <div>
-              <span className="nf-input-label">Especialidad</span>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {SPECIALTIES.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setSpecialty(s)}
-                    className={`nf-chip ${
-                      specialty === s ? "nf-chip-active" : ""
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="nf-btn-primary mt-2"
-              id="register-submit"
-            >
-              {isLoading ? (
-                <span className="inline-flex items-center gap-2">
-                  <svg
-                    className="animate-spin h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      className="opacity-25"
-                    />
-                    <path
-                      d="M4 12a8 8 0 018-8"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  Creando operador...
-                </span>
-              ) : (
-                "Crear Cuenta"
-              )}
-            </button>
-          </form>
+                {isLoading ? (
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <svg
+                      className="animate-spin h-4 w-4 text-nf-void"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        className="opacity-25"
+                      />
+                      <path
+                        d="M4 12a8 8 0 018-8"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    Creando operador...
+                  </span>
+                ) : (
+                  "Create account"
+                )}
+              </button>
+            </form>
+          </div>
 
           {/* Footer link */}
-          <p className="mt-6 text-center text-sm text-nf-text-muted">
-            ¿Ya tienes cuenta?{" "}
+          <p className="text-center text-xs text-nf-text-muted mt-auto">
+            Already have an account?{" "}
             <Link
               href="/login"
-              className="text-nf-cyan hover:text-nf-secondary transition-colors font-semibold"
+              className="text-nf-primary hover:text-nf-primary-bright hover:underline transition-all font-bold"
             >
-              Inicia Sesión
+              Sign in
             </Link>
           </p>
+        </div>
 
-          {/* Decorative bottom line */}
-          <div className="mt-8 flex items-center gap-3">
-            <div className="flex-1 h-px bg-nf-panel-border" />
+        {/* ── Right Panel: Cosmic Illustration (Matching shared image) ── */}
+        <div className="hidden lg:flex lg:w-1/2 bg-[#090A0C] relative flex-col justify-between p-12 overflow-hidden border-l border-nf-panel-border/30">
+          {/* Stars Background */}
+          <div className="absolute inset-0 z-0">
+            {[
+              { top: "15%", left: "20%", size: "1.5px", delay: "0.2s" },
+              { top: "35%", left: "80%", size: "2px", delay: "0.8s" },
+              { top: "55%", left: "25%", size: "1.5px", delay: "1.4s" },
+              { top: "60%", left: "70%", size: "2.5px", delay: "0.5s" },
+              { top: "80%", left: "30%", size: "1px", delay: "1.9s" },
+              { top: "20%", left: "60%", size: "2px", delay: "1.1s" },
+              { top: "75%", left: "85%", size: "1.5px", delay: "0.3s" },
+              { top: "10%", left: "45%", size: "2px", delay: "1.5s" },
+              { top: "45%", left: "15%", size: "2.5px", delay: "0.1s" },
+            ].map((star, i) => (
+              <div
+                key={i}
+                className="absolute bg-white rounded-full opacity-60 animate-glow-pulse"
+                style={{
+                  top: star.top,
+                  left: star.left,
+                  width: star.size,
+                  height: star.size,
+                  animationDelay: star.delay,
+                  boxShadow: "0 0 6px rgba(255, 255, 255, 0.4)",
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Vertical Glowing Light Streaks */}
+          <div className="absolute inset-0 z-0">
+            {/* Trail 1 - Background */}
+            <div className="absolute top-[10%] left-[30%] w-[1px] h-[180px] bg-gradient-to-b from-transparent via-nf-primary-bright/20 to-white/60 opacity-45">
+              <div className="absolute bottom-0 -left-[2px] w-[5px] h-[5px] rounded-full bg-white shadow-[0_0_8px_white]" />
+            </div>
+            {/* Trail 2 - Background */}
+            <div className="absolute top-[28%] left-[70%] w-[1px] h-[220px] bg-gradient-to-b from-transparent via-nf-primary-bright/20 to-white/50 opacity-35">
+              <div className="absolute bottom-0 -left-[1.5px] w-[4px] h-[4px] rounded-full bg-white shadow-[0_0_6px_white]" />
+            </div>
+          </div>
+
+          {/* Planetary Orbit Elements Container */}
+          <div className="relative flex-1 flex items-center justify-center z-10">
+            {/* Main Central Planet (Lavender/lilac 3D volumetric sphere) */}
+            <div className="relative">
+              <div
+                className="w-28 h-28 rounded-full bg-[radial-gradient(circle_at_30%_30%,#F3EFF7_0%,#D6C5F8_20%,#8E76C8_50%,#2F1B5C_80%,#090515_100%)] shadow-[0_0_50px_rgba(214,197,248,0.22),inset_-6px_-6px_20px_rgba(0,0,0,0.85)] animate-float"
+                style={{ animationDuration: "7s" }}
+              />
+              {/* Outer soft glow ring */}
+              <div className="absolute inset-[-15px] border border-nf-primary/5 rounded-full filter blur-[2px] animate-glow-pulse pointer-events-none" />
+            </div>
+
+            {/* Small Planet - Top Right */}
+            <div className="absolute top-[15%] right-[20%]">
+              <div className="w-9 h-9 rounded-full bg-[radial-gradient(circle_at_30%_30%,#F3EFF7_0%,#98A6FF_25%,#3D4CA8_60%,#0D1136_90%,#02030D_100%)] shadow-[0_0_20px_rgba(152,166,255,0.15),inset_-3px_-3px_10px_rgba(0,0,0,0.85)]" />
+            </div>
+
+            {/* Foreground Trail passing in front */}
+            <div className="absolute top-[35%] left-[55%] w-[1px] h-[160px] bg-gradient-to-b from-transparent via-nf-primary-bright/30 to-white/75 opacity-60 z-20">
+              <div className="absolute bottom-0 -left-[2px] w-[5px] h-[5px] rounded-full bg-white shadow-[0_0_8px_white]" />
+            </div>
+          </div>
+
+          {/* Minimalist Logo at the Bottom */}
+          <div className="relative z-10 flex justify-center w-full select-none mt-auto">
             <span
-              className="text-nf-text-muted"
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "10px",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
-              }}
+              className="text-[17px] font-medium tracking-widest text-[#EBE8F4]/95 font-sans lowercase"
+              style={{ letterSpacing: "0.2em" }}
             >
-              NexusForge OS v0.1.0
+              nexus<span className="font-light opacity-60">forge</span>
             </span>
-            <div className="flex-1 h-px bg-nf-panel-border" />
           </div>
         </div>
+
       </div>
     </div>
   );

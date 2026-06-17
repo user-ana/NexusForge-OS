@@ -122,11 +122,11 @@ function DashboardLayoutInner({
             >
               <path
                 d="M20 4L36 12V28L20 36L4 28V12L20 4Z"
-                stroke="#8B5CF6"
+                stroke="var(--color-nf-violet)"
                 strokeWidth="3"
-                fill="rgba(139,92,246,0.15)"
+                fill="rgba(176, 152, 255, 0.15)"
               />
-              <circle cx="20" cy="20" r="4" fill="#8B5CF6" />
+              <circle cx="20" cy="20" r="4" fill="var(--color-nf-violet)" />
             </svg>
           </div>
 

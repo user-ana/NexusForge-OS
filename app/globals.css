@@ -7,37 +7,37 @@
 
 @theme inline {
   /* ── Foundations ── */
-  --color-nf-void: #0B0E14;
-  --color-nf-background: #15121b;
-  --color-nf-surface: #151A22;
-  --color-nf-surface-dim: #15121b;
-  --color-nf-surface-bright: #3b3742;
-  --color-nf-surface-low: #1d1a23;
-  --color-nf-surface-container: #211e27;
-  --color-nf-surface-high: #2c2832;
-  --color-nf-surface-highest: #37333d;
-  --color-nf-panel-border: #2D3748;
+  --color-nf-void: #0A0A0C;
+  --color-nf-background: #121315;
+  --color-nf-surface: #161719;
+  --color-nf-surface-dim: #0F1012;
+  --color-nf-surface-bright: #2C2D31;
+  --color-nf-surface-low: #141517;
+  --color-nf-surface-container: #1D1E22;
+  --color-nf-surface-high: #242529;
+  --color-nf-surface-highest: #2E2F34;
+  --color-nf-panel-border: #232428;
 
   /* ── Text ── */
-  --color-nf-on-surface: #e7e0ed;
-  --color-nf-on-surface-variant: #cbc3d7;
-  --color-nf-text-muted: #958ea0;
-  --color-nf-text-readable: #E2E8F0;
+  --color-nf-on-surface: #EBE8F4;
+  --color-nf-on-surface-variant: #C5C1D1;
+  --color-nf-text-muted: #8E8B99;
+  --color-nf-text-readable: #F3EFF7;
 
-  /* ── Primary — Electric Violet ── */
-  --color-nf-primary: #d0bcff;
-  --color-nf-primary-bright: #a078ff;
-  --color-nf-primary-container: #a078ff;
-  --color-nf-on-primary: #3c0091;
-  --color-nf-on-primary-container: #340080;
-  --color-nf-violet: #8B5CF6;
-  --color-nf-violet-dim: #5516be;
+  /* ── Primary — Lavender Lilac ── */
+  --color-nf-primary: #D6C5F8;
+  --color-nf-primary-bright: #B39DFF;
+  --color-nf-primary-container: #372F4F;
+  --color-nf-on-primary: #1F005C;
+  --color-nf-on-primary-container: #EBE3FF;
+  --color-nf-violet: #B098FF;
+  --color-nf-violet-dim: #442E82;
 
-  /* ── Secondary — Cyan ── */
-  --color-nf-secondary: #4cd7f6;
-  --color-nf-secondary-container: #03b5d3;
-  --color-nf-on-secondary: #003640;
-  --color-nf-cyan: #06B6D4;
+  /* ── Secondary — Pastel Indigo/Lavender Blue ── */
+  --color-nf-secondary: #A5B4FC;
+  --color-nf-secondary-container: #312E81;
+  --color-nf-on-secondary: #E0E7FF;
+  --color-nf-cyan: #98A6FF;
 
   /* ── Tertiary — Amber ── */
   --color-nf-tertiary: #ffb869;
@@ -53,7 +53,7 @@
 
   /* ── Rank Glows ── */
   --color-nf-oro: #FBBF24;
-  --color-nf-diamante: #22D3EE;
+  --color-nf-diamante: #98A6FF;
 
   /* ── Typography ── */
   --font-display: "Hanken Grotesk", sans-serif;
@@ -141,7 +141,7 @@ html {
 }
 
 body {
-  background: var(--color-nf-void);
+  background: var(--color-nf-background);
   color: var(--color-nf-text-readable);
   font-family: var(--font-display);
   -webkit-font-smoothing: antialiased;
@@ -175,17 +175,17 @@ body {
    ═══════════════════════════════════════════════ */
 
 .glass {
-  background: rgba(21, 26, 34, 0.6);
+  background: rgba(22, 23, 26, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(45, 55, 72, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .glass-strong {
-  background: rgba(21, 26, 34, 0.85);
+  background: rgba(22, 23, 26, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(45, 55, 72, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* ═══════════════════════════════════════════════
@@ -197,21 +197,21 @@ body {
 }
 
 .glow-diamante {
-  filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.5));
+  filter: drop-shadow(0 0 20px rgba(152, 166, 255, 0.5));
 }
 
 .glow-violet {
-  filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.4));
+  filter: drop-shadow(0 0 12px rgba(176, 152, 255, 0.4));
 }
 
 .glow-border-violet {
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.15),
-              inset 0 0 15px rgba(139, 92, 246, 0.05);
+  box-shadow: 0 0 15px rgba(176, 152, 255, 0.15),
+              inset 0 0 15px rgba(176, 152, 255, 0.05);
 }
 
 .glow-border-cyan {
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.15),
-              inset 0 0 15px rgba(6, 182, 212, 0.05);
+  box-shadow: 0 0 15px rgba(152, 166, 255, 0.15),
+              inset 0 0 15px rgba(152, 166, 255, 0.05);
 }
 
 /* ═══════════════════════════════════════════════
@@ -232,8 +232,8 @@ body {
 }
 
 .nf-input:focus {
-  border-color: var(--color-nf-violet);
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  border-color: var(--color-nf-primary-bright);
+  box-shadow: 0 0 0 2px rgba(179, 157, 255, 0.15);
 }
 
 .nf-input::placeholder {
@@ -369,4 +369,28 @@ body {
   background-size: 400% 100%;
   animation: shimmer 2s ease-in-out infinite;
   border-radius: var(--radius-DEFAULT);
+}
+
+/* ═══════════════════════════════════════════════
+   Card Resize Transitions (Login <-> Register)
+   ═══════════════════════════════════════════════ */
+
+@media (min-width: 1024px) {
+  @keyframes grow-card {
+    from { height: 600px; min-height: 600px; }
+    to { height: 780px; min-height: 740px; }
+  }
+
+  @keyframes shrink-card {
+    from { height: 780px; min-height: 740px; }
+    to { height: 600px; min-height: 600px; }
+  }
+
+  .animate-grow-card {
+    animation: grow-card 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-shrink-card {
+    animation: shrink-card 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 }
