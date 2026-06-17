@@ -61,20 +61,30 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
               ))}
             </div>
 
-            {/* Vertical Glowing Light Streaks (Parallax feeling) */}
-            <div className="absolute inset-0 z-0">
-              {/* Trail 1 - Background */}
-              <div className="absolute top-[10%] left-[30%] w-[1px] h-[180px] bg-gradient-to-b from-transparent via-nf-primary-bright/20 to-white/60 opacity-45">
-                <div className="absolute bottom-0 -left-[2px] w-[5px] h-[5px] rounded-full bg-white shadow-[0_0_8px_white]" />
-              </div>
-              {/* Trail 2 - Background */}
-              <div className="absolute top-[28%] left-[70%] w-[1px] h-[220px] bg-gradient-to-b from-transparent via-nf-primary-bright/20 to-white/50 opacity-35">
-                <div className="absolute bottom-0 -left-[1.5px] w-[4px] h-[4px] rounded-full bg-white shadow-[0_0_6px_white]" />
-              </div>
+            {/* Shooting Stars / Meteor Shower (Diagonally flowing & Highly Visible) */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              {[
+                { top: "5%", left: "60%", duration: "4.5s", delay: "0s" },
+                { top: "20%", left: "85%", duration: "5.5s", delay: "1.5s" },
+                { top: "-10%", left: "50%", duration: "3.8s", delay: "3.0s" },
+                { top: "35%", left: "95%", duration: "6.0s", delay: "4.5s" },
+                { top: "15%", left: "70%", duration: "4.8s", delay: "2.2s" },
+              ].map((meteor, i) => (
+                <div
+                  key={i}
+                  className="meteor"
+                  style={{
+                    top: meteor.top,
+                    left: meteor.left,
+                    animation: `shooting-star ${meteor.duration} infinite linear`,
+                    animationDelay: meteor.delay,
+                  }}
+                />
+              ))}
             </div>
 
             {/* Planetary Orbit Elements Container */}
-            <div className="relative flex-1 flex items-center justify-center z-10">
+            <div className="relative flex-1 flex items-center justify-center z-10 font-sans">
               {/* Main Central Planet (Lavender/lilac 3D volumetric sphere) */}
               <div className="relative">
                 <div
@@ -90,10 +100,16 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
                 <div className="w-9 h-9 rounded-full bg-[radial-gradient(circle_at_30%_30%,#F3EFF7_0%,#98A6FF_25%,#3D4CA8_60%,#0D1136_90%,#02030D_100%)] shadow-[0_0_20px_rgba(152,166,255,0.15),inset_-3px_-3px_10px_rgba(0,0,0,0.85)]" />
               </div>
 
-              {/* Foreground Trail passing in front */}
-              <div className="absolute top-[35%] left-[55%] w-[1px] h-[160px] bg-gradient-to-b from-transparent via-nf-primary-bright/30 to-white/75 opacity-60 z-20">
-                <div className="absolute bottom-0 -left-[2px] w-[5px] h-[5px] rounded-full bg-white shadow-[0_0_8px_white]" />
-              </div>
+              {/* Foreground Meteor passing in front of the central planet */}
+              <div
+                className="meteor z-20"
+                style={{
+                  top: "30%",
+                  left: "55%",
+                  animation: "shooting-star 4.0s infinite linear",
+                  animationDelay: "1.0s",
+                }}
+              />
             </div>
 
             {/* Minimalist Logo at the Bottom */}

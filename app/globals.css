@@ -380,3 +380,51 @@ body {
     transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1), min-height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
+
+/* ═══════════════════════════════════════════════
+   Shooting Star Flow Animation
+   ═══════════════════════════════════════════════ */
+
+@keyframes shooting-star {
+  0% {
+    transform: translate(250px, -250px) rotate(-45deg) scale(0);
+    opacity: 0;
+  }
+  6% {
+    transform: translate(200px, -200px) rotate(-45deg) scale(1);
+    opacity: 1;
+  }
+  24% {
+    transform: translate(-300px, 300px) rotate(-45deg) scale(1);
+    opacity: 1;
+  }
+  30%, 100% {
+    transform: translate(-500px, 500px) rotate(-45deg) scale(0);
+    opacity: 0;
+  }
+}
+
+.meteor {
+  position: absolute;
+  width: 130px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, var(--color-nf-primary-bright) 35%, transparent 100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.meteor::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ffffff,
+              0 0 20px var(--color-nf-primary-bright),
+              0 0 35px var(--color-nf-violet);
+}
+
