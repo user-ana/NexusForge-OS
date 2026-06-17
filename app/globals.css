@@ -376,21 +376,7 @@ body {
    ═══════════════════════════════════════════════ */
 
 @media (min-width: 1024px) {
-  @keyframes grow-card {
-    from { height: 600px; min-height: 600px; }
-    to { height: 780px; min-height: 740px; }
-  }
-
-  @keyframes shrink-card {
-    from { height: 780px; min-height: 740px; }
-    to { height: 600px; min-height: 600px; }
-  }
-
-  .animate-grow-card {
-    animation: grow-card 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .animate-shrink-card {
-    animation: shrink-card 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  .auth-card-transition {
+    transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1), min-height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
