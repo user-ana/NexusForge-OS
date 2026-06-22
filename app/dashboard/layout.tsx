@@ -181,7 +181,7 @@ function DashboardLayoutInner({ children }: { children: ReactNode }) {
               <Link
                 key={cls.id}
                 href={`/dashboard?classId=${cls.id}&tab=general`}
-                className={`w-12 h-12 rounded-[24px] hover:rounded-[16px] flex items-center justify-center transition-all duration-200 group relative font-mono text-[14px] font-bold shrink-0 overflow-hidden ${
+                className={`w-12 h-12 rounded-[24px] hover:rounded-[16px] flex items-center justify-center transition-all duration-200 group relative font-mono text-[14px] font-bold shrink-0 ${
                   isActive
                     ? "rounded-[16px] text-white"
                     : "text-nf-text-muted hover:text-white"
@@ -191,19 +191,21 @@ function DashboardLayoutInner({ children }: { children: ReactNode }) {
                   border: `1.5px solid ${cls.color}60`,
                 }}
               >
-                {cls.iconUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={cls.iconUrl}
-                    alt={cls.name}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                  />
-                ) : (
-                  cls.iconLetter
-                )}
+                <div className="w-full h-full rounded-[inherit] overflow-hidden flex items-center justify-center">
+                  {cls.iconUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={cls.iconUrl}
+                      alt={cls.name}
+                      className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                    />
+                  ) : (
+                    cls.iconLetter
+                  )}
+                </div>
                 
                 {/* Tooltip */}
-                <div className="absolute left-full ml-3 px-2.5 py-1.5 rounded bg-nf-surface-highest text-nf-on-surface text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl z-50">
+                <div className="fixed left-[80px] px-2.5 py-1.5 rounded bg-nf-surface-highest text-nf-on-surface text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl z-50">
                   {cls.name}
                 </div>
                 
@@ -222,7 +224,7 @@ function DashboardLayoutInner({ children }: { children: ReactNode }) {
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
-            <div className="absolute left-full ml-3 px-2.5 py-1.5 rounded bg-nf-surface-highest text-nf-on-surface text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl z-50">
+            <div className="fixed left-[80px] px-2.5 py-1.5 rounded bg-nf-surface-highest text-nf-on-surface text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl z-50">
               {user?.role === "maestro" ? "Crear Clase" : "Unirse a Clase"}
             </div>
           </button>
