@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { mockDb, type MockClass, type MockStudent, type MockProject, type MockGroup, type MockTask, type MockChatMessage } from "@/lib/mock-db";
 
@@ -321,8 +322,8 @@ function DashboardPageContent() {
                       )}
                     </div>
 
-                    <button
-                      onClick={() => router.push(`/dashboard?classId=${cls.id}&tab=general`)}
+                    <Link
+                      href={`/dashboard?classId=${cls.id}&tab=general`}
                       className="text-xs font-bold text-nf-primary hover:text-nf-primary-bright flex items-center gap-1 transition-colors cursor-pointer hover:scale-105 active:scale-95"
                     >
                       Entrar al Aula
@@ -330,7 +331,7 @@ function DashboardPageContent() {
                         <line x1="5" y1="12" x2="19" y2="12" />
                         <polyline points="12 5 19 12 12 19" />
                       </svg>
-                    </button>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -683,8 +684,8 @@ function DashboardPageContent() {
             
             {/* Pestañas de Navegación de Aula */}
             <div className="flex border-b border-nf-panel-border/80">
-              <button
-                onClick={() => router.push(`/dashboard?classId=${currentClass.id}&tab=general`)}
+              <Link
+                href={`/dashboard?classId=${currentClass.id}&tab=general`}
                 className={`px-5 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer transition-all gaming-tab-btn ${
                   tab === "general"
                     ? "gaming-tab-btn-active text-white font-black glow-text-cyan"
@@ -692,11 +693,11 @@ function DashboardPageContent() {
                 }`}
               >
                 [01] Mi Gremio
-              </button>
+              </Link>
               
               {hasGroup && (
-                <button
-                  onClick={() => router.push(`/dashboard?classId=${currentClass.id}&tab=kanban`)}
+                <Link
+                  href={`/dashboard?classId=${currentClass.id}&tab=kanban`}
                   className={`px-5 py-3 text-xs uppercase font-bold tracking-wider cursor-pointer transition-all gaming-tab-btn ${
                     tab === "kanban"
                       ? "gaming-tab-btn-active text-white font-black glow-text-violet"
@@ -704,7 +705,7 @@ function DashboardPageContent() {
                   }`}
                 >
                   [02] Tablero Kanban
-                </button>
+                </Link>
               )}
             </div>
 
