@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, type FormEvent, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 
@@ -9,18 +9,47 @@ import { useAuth } from "@/lib/auth-context";
 // NexusForge OS — Inicio de Sesión
 // ═══════════════════════════════════════════════
 
-export default function LoginPage() {
+const CALLBACK_ERRORS: Record<string, string> = {
+  callback_failed: "El enlace de confirmación expiró o ya fue usado. Intenta iniciar sesión directamente.",
+  missing_token: "El enlace de confirmación es inválido. Solicita uno nuevo.",
+};
+
+function LoginPageContent() {
   const router = useRouter();
-  const { signIn, isLoading } = useAuth();
+  const searchParams = useSearchParams();
+  const { signIn, isLoading, user } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // Redirigir si ya hay sesión activa
+  useEffect(() => {
+    if (user) {
+      const redirect = searchParams.get("redirect") ?? "/dashboard";
+      router.replace(redirect);
+    }
+  }, [user, router, searchParams]);
+
+  // Mostrar error proveniente del callback de Supabase
+  useEffect(() => {
+    const callbackError = searchParams.get("error");
+    if (callbackError && CALLBACK_ERRORS[callbackError]) {
+      setError(CALLBACK_ERRORS[callbackError]);
+    }
+    // Mensaje de éxito cuando viene del registro (email confirmado)
+    const confirmed = searchParams.get("confirmed");
+    if (confirmed === "true") {
+      setSuccessMsg("¡Email confirmado! Ya puedes iniciar sesión.");
+    }
+  }, [searchParams]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setSuccessMsg(null);
 
     if (!email || !password) {
       setError("Completa todos los campos");
@@ -31,7 +60,8 @@ export default function LoginPage() {
     if (err) {
       setError(err);
     } else {
-      router.push("/dashboard");
+      const redirect = searchParams.get("redirect") ?? "/dashboard";
+      router.push(redirect);
     }
   }
 
@@ -50,6 +80,13 @@ export default function LoginPage() {
             Accede a tu centro de mando de ingeniería.
           </p>
         </div>
+
+        {/* Success message */}
+        {successMsg && (
+          <div className="mb-6 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs animate-fade-in font-mono">
+            {successMsg}
+          </div>
+        )}
 
         {/* Error */}
         {error && (
@@ -173,7 +210,7 @@ export default function LoginPage() {
 
       {/* Footer link */}
       <p className="mt-8 text-center text-xs text-nf-text-muted">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link
           href="/register"
           className="text-nf-primary hover:text-nf-primary-bright hover:underline transition-all font-bold"
@@ -182,5 +219,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="text-center p-12 text-nf-text-muted">Iniciando Centro de Mando...</div>}>
+      <LoginPageContent />
+    </Suspense>
   );
 }

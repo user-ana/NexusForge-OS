@@ -2,41 +2,29 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // ═══════════════════════════════════════════════
-// NexusForge OS — Middleware
+// NexusForge OS — Middleware (Mock-compatible)
 // ═══════════════════════════════════════════════
-// TODO: Activar Supabase — Instalar @supabase/ssr y usar:
-//
-// import { createServerClient } from '@supabase/ssr';
-//
-// En la función middleware:
-//   const supabase = createServerClient(
-//     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-//     { cookies: { ... } }
-//   );
-//   const { data: { session } } = await supabase.auth.getSession();
-//   if (!session && isProtected) redirect to /login
 
-const PUBLIC_ROUTES = ["/login", "/register"];
+const PUBLIC_ROUTES = ["/login", "/register", "/auth"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow public routes always
+  // Siempre permite rutas públicas
   if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
     return NextResponse.next();
   }
 
-  // TODO: Activar Supabase — Verificar sesión real aquí
-  // Por ahora: siempre permite acceso (mock)
-  //
-  // Cuando se active Supabase, descomentar:
-  // const session = await getSupabaseSession(request);
-  // if (!session) {
-  //   const loginUrl = new URL('/login', request.url);
-  //   loginUrl.searchParams.set('redirect', pathname);
-  //   return NextResponse.redirect(loginUrl);
-  // }
+  // Verifica la cookie del usuario mockeado
+  const mockUserCookie = request.cookies.get("nf_mock_user");
+
+  if (!mockUserCookie?.value) {
+    const loginUrl = new URL("/login", request.url);
+    if (pathname !== "/") {
+      loginUrl.searchParams.set("redirect", pathname);
+    }
+    return NextResponse.redirect(loginUrl);
+  }
 
   return NextResponse.next();
 }

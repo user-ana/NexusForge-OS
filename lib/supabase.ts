@@ -1,18 +1,10 @@
 // ═══════════════════════════════════════════════
-// NexusForge OS — Supabase Client (MOCK)
+// NexusForge OS — Supabase Client (Mock & Real Router)
 // ═══════════════════════════════════════════════
-// TODO: Activar Supabase — Instalar @supabase/supabase-js y descomentar
-//
-// import { createClient } from '@supabase/supabase-js';
-//
-// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-// const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-//
-// export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export type UserRole = "maestro" | "estudiante";
 
-export interface MockUser {
+export interface AppUser {
   id: string;
   email: string;
   username: string;
@@ -22,89 +14,140 @@ export interface MockUser {
 }
 
 export interface AuthResponse {
-  user: MockUser | null;
+  user: AppUser | null;
   error: string | null;
 }
 
-/**
- * Simulates network latency for mock operations.
- */
-function delay(ms: number = 500): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+// ── Cookie Helpers (Para integrarse con Middleware) ────────────────
+
+function setMockCookie(user: AppUser | null) {
+  if (typeof document === "undefined") return;
+  if (user) {
+    document.cookie = `nf_mock_user=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=86400; SameSite=Lax`;
+  } else {
+    document.cookie = "nf_mock_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  }
 }
 
-/**
- * Mock sign in with email and password.
- * Any email/password combination will succeed.
- *
- * TODO: Activar Supabase — Reemplazar con:
- *   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
- */
+function getMockCookie(): AppUser | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(^| )nf_mock_user=([^;]+)/);
+  if (match) {
+    try {
+      return JSON.parse(decodeURIComponent(match[2]));
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+// ── Auth Functions (Mocking based on inputs) ───────────────────────
+
 export async function signIn(
   email: string,
-  _password: string
+  _password?: string
 ): Promise<AuthResponse> {
-  await delay(600);
+  let user: AppUser;
 
-  const user: MockUser = {
-    id: "mock-user-001",
-    email,
-    username: email.split("@")[0],
-    role: "estudiante",
-    specialty: "Full Stack",
-    created_at: new Date().toISOString(),
-  };
+  if (email.trim() === "josegaldamez1991@gmail.com") {
+    user = {
+      id: "teacher-001",
+      email: "josegaldamez1991@gmail.com",
+      username: "Jose Galdamez (Maestro)",
+      role: "maestro",
+      specialty: "Catedrático Principal",
+      created_at: new Date().toISOString(),
+    };
+  } else if (email.trim() === "ana_maestra@gmail.com") {
+    user = {
+      id: "teacher-ana",
+      email: "ana_maestra@gmail.com",
+      username: "Ana Maestra",
+      role: "maestro",
+      specialty: "Catedrática Asociada",
+      created_at: new Date().toISOString(),
+    };
+  } else if (email.trim() === "jose@gmail.com") {
+    user = {
+      id: "student-jose",
+      email: "jose@gmail.com",
+      username: "Jose Estudiante",
+      role: "estudiante",
+      specialty: "Full Stack Developer",
+      created_at: new Date().toISOString(),
+    };
+  } else if (email.trim() === "ana_estudiante@gmail.com") {
+    user = {
+      id: "student-ana",
+      email: "ana_estudiante@gmail.com",
+      username: "Ana Estudiante",
+      role: "estudiante",
+      specialty: "Data Scientist",
+      created_at: new Date().toISOString(),
+    };
+  } else {
+    // Para otros emails en el mock, creamos un estudiante genérico
+    const username = email.split("@")[0];
+    user = {
+      id: "student-" + Math.random().toString(36).substring(2, 9),
+      email,
+      username,
+      role: "estudiante",
+      specialty: "Software Engineer",
+      created_at: new Date().toISOString(),
+    };
+  }
 
+  setMockCookie(user);
   return { user, error: null };
 }
 
-/**
- * Mock sign up with email, password, and username.
- *
- * TODO: Activar Supabase — Reemplazar con:
- *   const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { username } } });
- */
 export async function signUp(
   email: string,
-  _password: string,
-  username: string,
-  role: UserRole,
-  specialty: string
+  _password?: string,
+  username?: string,
+  role?: UserRole,
+  specialty?: string
 ): Promise<AuthResponse> {
-  await delay(800);
-
-  const user: MockUser = {
-    id: "mock-user-" + Math.random().toString(36).substring(2, 8),
+  const user: AppUser = {
+    id: "user-" + Math.random().toString(36).substring(2, 9),
     email,
-    username,
-    role,
-    specialty,
+    username: username || email.split("@")[0],
+    role: role || "estudiante",
+    specialty: specialty || "Junior Developer",
     created_at: new Date().toISOString(),
   };
 
+  setMockCookie(user);
   return { user, error: null };
 }
 
-/**
- * Mock sign out.
- *
- * TODO: Activar Supabase — Reemplazar con:
- *   await supabase.auth.signOut();
- */
 export async function signOut(): Promise<{ error: string | null }> {
-  await delay(300);
+  setMockCookie(null);
   return { error: null };
 }
 
-/**
- * Mock get session — returns null (no active session).
- *
- * TODO: Activar Supabase — Reemplazar con:
- *   const { data: { session } } = await supabase.auth.getSession();
- */
-export async function getSession(): Promise<{
-  user: MockUser | null;
-}> {
-  await delay(200);
-  return { user: null };
+export async function getSession(): Promise<{ user: AppUser | null }> {
+  return { user: getMockCookie() };
 }
+
+// Exportamos un objeto dummy de supabase para evitar que falle en imports del contexto
+export const supabase = {
+  auth: {
+    onAuthStateChange: (callback: (event: string, session: any) => void) => {
+      // Simula el callback con el usuario actual de la cookie
+      const user = getMockCookie();
+      if (user) {
+        callback("SIGNED_IN", { user });
+      }
+      return {
+        data: {
+          subscription: {
+            unsubscribe: () => {},
+          },
+        },
+      };
+    },
+  },
+};

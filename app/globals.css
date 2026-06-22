@@ -428,3 +428,117 @@ body {
               0 0 35px var(--color-nf-violet);
 }
 
+/* ═══════════════════════════════════════════════
+   Gaming & Cyber HUD Theme Extensions
+   ═══════════════════════════════════════════════ */
+
+.glow-text-cyan {
+  text-shadow: 0 0 8px rgba(152, 166, 255, 0.6), 0 0 20px rgba(152, 166, 255, 0.2);
+}
+
+.glow-text-gold {
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.2);
+}
+
+.glow-text-violet {
+  text-shadow: 0 0 8px rgba(176, 152, 255, 0.6), 0 0 20px rgba(176, 152, 255, 0.2);
+}
+
+/* Tech Grid Pattern overlay */
+.tech-grid-overlay {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+
+/* Glowing Cyber Card */
+.gaming-glow-card {
+  position: relative;
+  background: rgba(18, 19, 21, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.gaming-glow-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  pointer-events: none;
+  z-index: 0;
+  transition: all 0.3s ease;
+}
+
+.gaming-glow-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(176, 152, 255, 0.25);
+  box-shadow: 0 12px 40px rgba(176, 152, 255, 0.08), inset 0 0 12px rgba(176, 152, 255, 0.02);
+}
+
+/* HUD telemetry box */
+.hud-telemetry-box {
+  border-left: 3px solid var(--color-nf-cyan);
+  background: rgba(152, 166, 255, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-telemetry-box::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 4px;
+  background: var(--color-nf-cyan);
+}
+
+/* Interactive Gaming Tab button */
+.gaming-tab-btn {
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+.gaming-tab-btn::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--color-nf-primary-bright);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+  box-shadow: 0 0 8px var(--color-nf-primary-bright);
+}
+
+.gaming-tab-btn:hover::after {
+  width: 80%;
+}
+
+.gaming-tab-btn-active::after {
+  width: 100%;
+}
+
+/* Sub-page transition slide classes */
+.page-transition-enter {
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom micro-interactive scaling */
+.hover-scale-micro {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+.hover-scale-micro:hover {
+  transform: scale(1.025);
+}
+
+.hover-scale-micro:active {
+  transform: scale(0.985);
+}
+
+

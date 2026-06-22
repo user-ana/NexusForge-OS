@@ -9,10 +9,12 @@ import {
   type ReactNode,
 } from "react";
 import {
-  signIn as mockSignIn,
-  signUp as mockSignUp,
-  signOut as mockSignOut,
-  type MockUser,
+  signIn as supabaseSignIn,
+  signUp as supabaseSignUp,
+  signOut as supabaseSignOut,
+  getSession,
+  supabase,
+  type AppUser,
   type UserRole,
 } from "@/lib/supabase";
 
@@ -21,7 +23,7 @@ import {
 // ═══════════════════════════════════════════════
 
 interface AuthContextType {
-  user: MockUser | null;
+  user: AppUser | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<string | null>;
   signUp: (
@@ -36,35 +38,50 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const STORAGE_KEY = "nexusforge_user";
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<MockUser | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Restore session from localStorage on mount
+  // Restore session from Supabase on mount
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        setUser(JSON.parse(stored));
+    getSession().then(({ user }) => {
+      setUser(user);
+      setIsLoading(false);
+    });
+
+    // Listen for auth state changes (login, logout, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (session?.user) {
+          const meta = session.user.user_metadata ?? {};
+          setUser({
+            id: session.user.id,
+            email: session.user.email ?? "",
+            username: meta.username ?? session.user.email?.split("@")[0] ?? "",
+            role: (meta.role as UserRole) ?? "estudiante",
+            specialty: meta.specialty ?? "",
+            created_at: session.user.created_at,
+          });
+        } else {
+          setUser(null);
+        }
       }
-    } catch {
-      // Invalid data, ignore
-    }
-    setIsLoading(false);
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = useCallback(
     async (email: string, password: string): Promise<string | null> => {
       setIsLoading(true);
       try {
-        const result = await mockSignIn(email, password);
+        const result = await supabaseSignIn(email, password);
         if (result.error) {
           return result.error;
         }
         setUser(result.user);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(result.user));
         return null;
       } finally {
         setIsLoading(false);
@@ -83,12 +100,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ): Promise<string | null> => {
       setIsLoading(true);
       try {
-        const result = await mockSignUp(email, password, username, role, specialty);
+        const result = await supabaseSignUp(email, password, username, role, specialty);
         if (result.error) {
           return result.error;
         }
         setUser(result.user);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(result.user));
         return null;
       } finally {
         setIsLoading(false);
@@ -100,9 +116,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     setIsLoading(true);
     try {
-      await mockSignOut();
+      await supabaseSignOut();
       setUser(null);
-      localStorage.removeItem(STORAGE_KEY);
     } finally {
       setIsLoading(false);
     }
