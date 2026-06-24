@@ -78,3 +78,160 @@ export async function getSession(): Promise<{ user: AppUser | null }> {
   if (!session?.user) return { user: null };
   return { user: formatUserSimple(session.user) };
 }
+
+export interface SupabaseRoom {
+  id: string;
+  name: string;
+  access_code: string;
+  teacher_id: string;
+  icon_letter: string;
+  color: string;
+  icon_url?: string;
+  created_at: string;
+}
+
+export function mapSupabaseRoomToMockClass(room: SupabaseRoom): any {
+  return {
+    id: room.id,
+    name: room.name,
+    accessCode: room.access_code,
+    teacherId: room.teacher_id,
+    createdAt: room.created_at,
+    iconLetter: room.icon_letter,
+    color: room.color,
+    iconUrl: room.icon_url || undefined,
+  };
+}
+
+export async function fetchRooms(
+  userId: string,
+  role: UserRole
+): Promise<{ rooms: SupabaseRoom[]; error: string | null }> {
+  try {
+    if (role === "maestro") {
+      const { data, error } = await supabase
+        .from("rooms")
+        .select("*")
+        .eq("teacher_id", userId)
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      return { rooms: data || [], error: null };
+    } else {
+      const { data, error } = await supabase
+        .from("room_members")
+        .select(`
+          room_id,
+          rooms (
+            id,
+            name,
+            access_code,
+            teacher_id,
+            icon_letter,
+            color,
+            icon_url,
+            created_at
+          )
+        `)
+        .eq("student_id", userId);
+
+      if (error) throw error;
+      
+      const rooms: SupabaseRoom[] = (data || [])
+        .map((item: any) => (item as any).rooms)
+        .filter((room: any) => room !== null);
+
+      return { rooms, error: null };
+    }
+  } catch (err: any) {
+    console.error("Error al obtener aulas:", err);
+    return { rooms: [], error: err.message || "Error al cargar las aulas" };
+  }
+}
+
+export async function createRoom(
+  name: string,
+  accessCode: string,
+  teacherId: string,
+  iconUrl?: string
+): Promise<{ room: SupabaseRoom | null; error: string | null }> {
+  try {
+    const uppercaseCode = accessCode.trim().toUpperCase();
+    
+    const colors = ["#8E76C8", "#3D4CA8", "#10B981", "#F59E0B", "#EF4444", "#EC4899"];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const words = name.trim().split(/\s+/);
+    const iconLetter = words.map(w => w[0]).join("").slice(0, 3).toUpperCase() || "RM";
+
+    const { data, error } = await supabase
+      .from("rooms")
+      .insert({
+        name: name.trim(),
+        access_code: uppercaseCode,
+        teacher_id: teacherId,
+        icon_letter: iconLetter,
+        color: randomColor,
+        icon_url: iconUrl || null
+      })
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === "23505") {
+        return { room: null, error: "El código de acceso ya está en uso" };
+      }
+      throw error;
+    }
+    
+    return { room: data, error: null };
+  } catch (err: any) {
+    console.error("Error al crear aula:", err);
+    return { room: null, error: err.message || "Error al crear el aula" };
+  }
+}
+
+export async function joinRoom(
+  studentId: string,
+  accessCode: string
+): Promise<{ room: SupabaseRoom | null; error: string | null }> {
+  try {
+    const uppercaseCode = accessCode.trim().toUpperCase();
+
+    const { data: roomData, error: roomError } = await supabase
+      .from("rooms")
+      .select("*")
+      .eq("access_code", uppercaseCode)
+      .maybeSingle();
+
+    if (roomError) throw roomError;
+    if (!roomData) {
+      return { room: null, error: "Código de aula inválido" };
+    }
+
+    const { data: membershipData, error: membershipError } = await supabase
+      .from("room_members")
+      .select("*")
+      .eq("room_id", roomData.id)
+      .eq("student_id", studentId)
+      .maybeSingle();
+
+    if (membershipError) throw membershipError;
+    if (membershipData) {
+      return { room: null, error: "Ya estás registrado en esta aula" };
+    }
+
+    const { error: joinError } = await supabase
+      .from("room_members")
+      .insert({
+        room_id: roomData.id,
+        student_id: studentId
+      });
+
+    if (joinError) throw joinError;
+
+    return { room: roomData, error: null };
+  } catch (err: any) {
+    console.error("Error al unirse al aula:", err);
+    return { room: null, error: err.message || "Error al unirse al aula" };
+  }
+}

@@ -5,6 +5,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { mockDb, type MockClass, type MockGroup } from "@/lib/mock-db";
+import { fetchRooms, createRoom, joinRoom, mapSupabaseRoomToMockClass } from "@/lib/supabase";
 
 // ═══════════════════════════════════════════════
 // NexusForge OS — Layout con Barra Lateral Discord
@@ -45,20 +46,26 @@ function DashboardLayoutInner({ children }: { children: ReactNode }) {
     setMounted(true);
   }, []);
 
-  // Cargar clases asociadas al usuario
+  // Cargar clases (Rooms) asociadas al usuario
   useEffect(() => {
     if (!user) return;
-    const all = mockDb.getClasses();
-    if (user.role === "maestro") {
-      setClasses(all.filter((c) => c.teacherId === user.id));
-    } else {
-      const students = mockDb.getStudents();
-      const currentStudent = students.find((s) => s.email === user.email);
-      if (currentStudent) {
-        setClasses(all.filter((c) => currentStudent.classIds.includes(c.id)));
+    
+    const loadRooms = async () => {
+      const { rooms, error } = await fetchRooms(user.id, user.role);
+      if (!error && rooms) {
+        setClasses(rooms.map(mapSupabaseRoomToMockClass));
+      } else {
+        console.error("Error cargando aulas:", error);
       }
-    }
-  }, [user, showClassModal]);
+    };
+    
+    loadRooms();
+
+    window.addEventListener("classes-updated", loadRooms);
+    return () => {
+      window.removeEventListener("classes-updated", loadRooms);
+    };
+  }, [user]);
 
   // Escuchar evento para abrir modal de clase desde el dashboard
   useEffect(() => {
@@ -81,21 +88,21 @@ function DashboardLayoutInner({ children }: { children: ReactNode }) {
     router.push("/login");
   };
 
-  const handleCreateOrJoinClass = (e: React.FormEvent) => {
+  const handleCreateOrJoinClass = async (e: React.FormEvent) => {
     e.preventDefault();
     setModalError(null);
+    if (!user) return;
 
-    if (user?.role === "maestro") {
+    if (user.role === "maestro") {
       if (!classNameInput || !classCodeInput) {
         setModalError("Completa todos los campos");
         return;
       }
-      const all = mockDb.getClasses();
-      if (all.some((c) => c.accessCode === classCodeInput.toUpperCase())) {
-        setModalError("El código de acceso ya está en uso");
+      const { room, error } = await createRoom(classNameInput, classCodeInput, user.id, selectedIcon);
+      if (error) {
+        setModalError(error);
         return;
       }
-      mockDb.addClass(classNameInput, classCodeInput, user.id, selectedIcon);
       setShowClassModal(false);
       setClassNameInput("");
       setClassCodeInput("");
@@ -106,16 +113,16 @@ function DashboardLayoutInner({ children }: { children: ReactNode }) {
         setModalError("Ingresa un código de clase");
         return;
       }
-      const result = mockDb.joinClass(user?.email || "", classCodeInput);
-      if (result.error) {
-        setModalError(result.error);
+      const { room, error } = await joinRoom(user.id, classCodeInput);
+      if (error) {
+        setModalError(error);
         return;
       }
       setShowClassModal(false);
       setClassCodeInput("");
       window.dispatchEvent(new CustomEvent("classes-updated"));
-      if (result.targetClass) {
-        router.push(`/dashboard?classId=${result.targetClass.id}&tab=general`);
+      if (room) {
+        router.push(`/dashboard?classId=${room.id}&tab=general`);
       }
     }
   };

@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { mockDb, type MockClass, type MockStudent, type MockProject, type MockGroup, type MockTask, type MockChatMessage } from "@/lib/mock-db";
+import { fetchRooms, mapSupabaseRoomToMockClass } from "@/lib/supabase";
 
 // ═══════════════════════════════════════════════
 // NexusForge OS — Dashboard Principal (Reactivo)
@@ -51,9 +52,20 @@ function DashboardPageContent() {
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Cargar datos del mock DB
-  const loadData = () => {
-    setClasses(mockDb.getClasses());
+  // Cargar datos del mock DB y Supabase
+  const loadData = async () => {
+    if (user) {
+      const { rooms, error } = await fetchRooms(user.id, user.role);
+      if (!error && rooms) {
+        setClasses(rooms.map(mapSupabaseRoomToMockClass));
+      } else {
+        console.error("Error al cargar aulas de Supabase en Dashboard:", error);
+        setClasses([]);
+      }
+    } else {
+      setClasses([]);
+    }
+
     setStudents(mockDb.getStudents());
     setProjects(mockDb.getProjects());
     setGroups(mockDb.getGroups());
@@ -67,7 +79,7 @@ function DashboardPageContent() {
 
   useEffect(() => {
     loadData();
-  }, [classId, tab, groupId]);
+  }, [classId, tab, groupId, user]);
 
   // Escuchar eventos de actualización de grupos y clases
   useEffect(() => {
@@ -228,12 +240,7 @@ function DashboardPageContent() {
   // VISTA 1: HOME (Solo Aulas / Clases)
   // ───────────────────────────────────────────────
   if (!classId) {
-    const userClasses = user?.role === "maestro" 
-      ? classes.filter(c => c.teacherId === user.id)
-      : classes.filter(c => {
-          const s = students.find(std => std.email === user?.email);
-          return s ? s.classIds.includes(c.id) : false;
-        });
+    const userClasses = classes;
 
     return (
       <div className="max-w-5xl mx-auto space-y-6 page-transition-enter">
