@@ -51,9 +51,12 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setSuccessMsg(null);
 
     if (!role) {
       setError("Selecciona tu tipo de cuenta");
@@ -79,7 +82,10 @@ export default function RegisterPage() {
     if (err) {
       setError(err);
     } else {
-      router.push("/dashboard");
+      // Mostrar mensaje de éxito en lugar de redirigir (necesita confirmar email primero)
+      setSuccessMsg(
+        "¡Cuenta creada exitosamente! Revisa tu correo electrónico para confirmar tu cuenta antes de iniciar sesión."
+      );
     }
   }
 
@@ -98,6 +104,13 @@ export default function RegisterPage() {
             Registra tu perfil de operador en la forja.
           </p>
         </div>
+
+        {/* Success message */}
+        {successMsg && (
+          <div className="mb-5 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs animate-fade-in font-mono">
+            {successMsg}
+          </div>
+        )}
 
         {/* Error */}
         {error && (

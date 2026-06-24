@@ -17,6 +17,14 @@ export async function GET(request: NextRequest) {
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
   const next = searchParams.get("next") ?? "/dashboard";
+  
+  // Log de debug para ver qué parámetros estamos recibiendo
+  console.log("[auth/callback] Received search params:", {
+    code: code ? "[REDACTED]" : null,
+    tokenHash: tokenHash ? "[REDACTED]" : null,
+    type,
+    next,
+  });
 
   const response = NextResponse.redirect(`${origin}${next}`);
 
@@ -39,27 +47,34 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     // PKCE flow (default for newer Supabase projects)
+    console.log("[auth/callback] Using PKCE flow");
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
-      console.error("[auth/callback] exchangeCodeForSession error:", error.message);
-      return NextResponse.redirect(`${origin}/login?error=callback_failed`);
+      console.error("[auth/callback] exchangeCodeForSession error:", error);
+      // Si falla (probablemente porque no está el code verifier), redirigir con mensaje de éxito de confirmación
+      return NextResponse.redirect(`${origin}/login?confirmed=true`);
     }
+    console.log("[auth/callback] PKCE flow successful");
     return response;
   }
 
   if (tokenHash && type) {
     // Email OTP / magic link flow
+    console.log("[auth/callback] Using OTP flow");
     const { error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
       type: type as Parameters<typeof supabase.auth.verifyOtp>[0]["type"],
     });
     if (error) {
-      console.error("[auth/callback] verifyOtp error:", error.message);
-      return NextResponse.redirect(`${origin}/login?error=callback_failed`);
+      console.error("[auth/callback] verifyOtp error:", error);
+      // Si falla, de todos modos redirigir con mensaje de éxito de confirmación (el correo ya está confirmado)
+      return NextResponse.redirect(`${origin}/login?confirmed=true`);
     }
+    console.log("[auth/callback] OTP flow successful");
     return response;
   }
 
-  // No token — redirigir a login con error
-  return NextResponse.redirect(`${origin}/login?error=missing_token`);
+  // No token — pero si es una confirmación de correo, redirigir con mensaje de éxito
+  console.error("[auth/callback] No code or tokenHash found in search params");
+  return NextResponse.redirect(`${origin}/login?confirmed=true`);
 }

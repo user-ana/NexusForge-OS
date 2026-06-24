@@ -1,6 +1,4 @@
-// ═══════════════════════════════════════════════
-// NexusForge OS — Supabase Client (Mock & Real Router)
-// ═══════════════════════════════════════════════
+import { createBrowserClient } from "@supabase/ssr";
 
 export type UserRole = "maestro" | "estudiante";
 
@@ -18,136 +16,65 @@ export interface AuthResponse {
   error: string | null;
 }
 
-// ── Cookie Helpers (Para integrarse con Middleware) ────────────────
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 
-function setMockCookie(user: AppUser | null) {
-  if (typeof document === "undefined") return;
-  if (user) {
-    document.cookie = `nf_mock_user=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=86400; SameSite=Lax`;
-  } else {
-    document.cookie = "nf_mock_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  }
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+
+
+function formatUserSimple(authUser: any): AppUser {
+  const meta = authUser.user_metadata ?? {};
+  return {
+    id: authUser.id,
+    email: authUser.email || "",
+    username: meta.username || authUser.email?.split("@")[0] || "",
+    role: (meta.role as UserRole) || "estudiante",
+    specialty: meta.specialty || "",
+    created_at: authUser.created_at || new Date().toISOString(),
+  };
 }
-
-function getMockCookie(): AppUser | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(/(^| )nf_mock_user=([^;]+)/);
-  if (match) {
-    try {
-      return JSON.parse(decodeURIComponent(match[2]));
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}
-
-// ── Auth Functions (Mocking based on inputs) ───────────────────────
 
 export async function signIn(
   email: string,
-  _password?: string
+  password: string
 ): Promise<AuthResponse> {
-  let user: AppUser;
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-  if (email.trim() === "josegaldamez1991@gmail.com") {
-    user = {
-      id: "teacher-001",
-      email: "josegaldamez1991@gmail.com",
-      username: "Jose Galdamez (Maestro)",
-      role: "maestro",
-      specialty: "Catedrático Principal",
-      created_at: new Date().toISOString(),
-    };
-  } else if (email.trim() === "ana_maestra@gmail.com") {
-    user = {
-      id: "teacher-ana",
-      email: "ana_maestra@gmail.com",
-      username: "Ana Maestra",
-      role: "maestro",
-      specialty: "Catedrática Asociada",
-      created_at: new Date().toISOString(),
-    };
-  } else if (email.trim() === "jose@gmail.com") {
-    user = {
-      id: "student-jose",
-      email: "jose@gmail.com",
-      username: "Jose Estudiante",
-      role: "estudiante",
-      specialty: "Full Stack Developer",
-      created_at: new Date().toISOString(),
-    };
-  } else if (email.trim() === "ana_estudiante@gmail.com") {
-    user = {
-      id: "student-ana",
-      email: "ana_estudiante@gmail.com",
-      username: "Ana Estudiante",
-      role: "estudiante",
-      specialty: "Data Scientist",
-      created_at: new Date().toISOString(),
-    };
-  } else {
-    // Para otros emails en el mock, creamos un estudiante genérico
-    const username = email.split("@")[0];
-    user = {
-      id: "student-" + Math.random().toString(36).substring(2, 9),
-      email,
-      username,
-      role: "estudiante",
-      specialty: "Software Engineer",
-      created_at: new Date().toISOString(),
-    };
-  }
-
-  setMockCookie(user);
-  return { user, error: null };
+  if (error) return { user: null, error: error.message };
+  if (data.user) return { user: formatUserSimple(data.user), error: null };
+  return { user: null, error: "No se pudo iniciar sesión" };
 }
 
 export async function signUp(
   email: string,
-  _password?: string,
+  password: string,
   username?: string,
   role?: UserRole,
   specialty?: string
 ): Promise<AuthResponse> {
-  const user: AppUser = {
-    id: "user-" + Math.random().toString(36).substring(2, 9),
+  const { data, error } = await supabase.auth.signUp({
     email,
-    username: username || email.split("@")[0],
-    role: role || "estudiante",
-    specialty: specialty || "Junior Developer",
-    created_at: new Date().toISOString(),
-  };
+    password,
+    options: {
+      data: { username, role: role || "estudiante", specialty: specialty || "" },
+    },
+  });
 
-  setMockCookie(user);
-  return { user, error: null };
+  if (error) return { user: null, error: error.message };
+  if (data.user) return { user: formatUserSimple(data.user), error: null };
+  return { user: null, error: "No se pudo crear la cuenta" };
 }
 
 export async function signOut(): Promise<{ error: string | null }> {
-  setMockCookie(null);
-  return { error: null };
+  const { error } = await supabase.auth.signOut();
+  return { error: error?.message || null };
 }
 
 export async function getSession(): Promise<{ user: AppUser | null }> {
-  return { user: getMockCookie() };
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) return { user: null };
+  return { user: formatUserSimple(session.user) };
 }
-
-// Exportamos un objeto dummy de supabase para evitar que falle en imports del contexto
-export const supabase = {
-  auth: {
-    onAuthStateChange: (callback: (event: string, session: any) => void) => {
-      // Simula el callback con el usuario actual de la cookie
-      const user = getMockCookie();
-      if (user) {
-        callback("SIGNED_IN", { user });
-      }
-      return {
-        data: {
-          subscription: {
-            unsubscribe: () => {},
-          },
-        },
-      };
-    },
-  },
-};

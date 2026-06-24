@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk, JetBrains_Mono } from "next/font/google";
+import { AuthProviderWrapper } from "./auth-provider-wrapper";
 import "./globals.css";
 
 const hankenGrotesk = Hanken_Grotesk({
@@ -32,7 +33,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-nf-void antialiased" suppressHydrationWarning>
-        {children}
+        <AuthProviderWrapper>{children}</AuthProviderWrapper>
       </body>
     </html>
   );

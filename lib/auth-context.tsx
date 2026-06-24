@@ -18,10 +18,6 @@ import {
   type UserRole,
 } from "@/lib/supabase";
 
-// ═══════════════════════════════════════════════
-// NexusForge OS — Auth Context
-// ═══════════════════════════════════════════════
-
 interface AuthContextType {
   user: AppUser | null;
   isLoading: boolean;
@@ -42,26 +38,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Restore session from Supabase on mount
   useEffect(() => {
-    getSession().then(({ user }) => {
-      setUser(user);
-      setIsLoading(false);
-    });
+    let mounted = true;
 
-    // Listen for auth state changes (login, logout, token refresh)
+    const initAuth = async () => {
+      const { user: initialUser } = await getSession();
+      if (mounted) {
+        setUser(initialUser);
+        setIsLoading(false);
+      }
+    };
+
+    initAuth();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
+        if (!mounted) return;
+        
         if (session?.user) {
-          const meta = session.user.user_metadata ?? {};
-          setUser({
-            id: session.user.id,
-            email: session.user.email ?? "",
-            username: meta.username ?? session.user.email?.split("@")[0] ?? "",
-            role: (meta.role as UserRole) ?? "estudiante",
-            specialty: meta.specialty ?? "",
-            created_at: session.user.created_at,
-          });
+          const { user: currentUser } = await getSession();
+          setUser(currentUser);
         } else {
           setUser(null);
         }
@@ -69,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
@@ -78,10 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       try {
         const result = await supabaseSignIn(email, password);
-        if (result.error) {
-          return result.error;
-        }
-        setUser(result.user);
+        if (result.error) return result.error;
         return null;
       } finally {
         setIsLoading(false);
@@ -101,10 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       try {
         const result = await supabaseSignUp(email, password, username, role, specialty);
-        if (result.error) {
-          return result.error;
-        }
-        setUser(result.user);
+        if (result.error) return result.error;
         return null;
       } finally {
         setIsLoading(false);
