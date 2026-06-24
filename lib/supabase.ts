@@ -235,3 +235,42 @@ export async function joinRoom(
     return { room: null, error: err.message || "Error al unirse al aula" };
   }
 }
+
+export interface SupabaseProfile {
+  id: string;
+  username: string;
+  role: "estudiante" | "maestro";
+  specialty: string;
+  created_at: string;
+}
+
+export async function fetchRoomMembers(
+  roomId: string
+): Promise<{ members: SupabaseProfile[]; error: string | null }> {
+  try {
+    const { data, error } = await supabase
+      .from("room_members")
+      .select(`
+        student_id,
+        profiles (
+          id,
+          username,
+          role,
+          specialty,
+          created_at
+        )
+      `)
+      .eq("room_id", roomId);
+
+    if (error) throw error;
+
+    const members: SupabaseProfile[] = (data || [])
+      .map((item: any) => (item as any).profiles)
+      .filter((profile: any) => profile !== null);
+
+    return { members, error: null };
+  } catch (err: any) {
+    console.error("Error al obtener estudiantes del aula:", err);
+    return { members: [], error: err.message || "Error al cargar estudiantes del aula" };
+  }
+}

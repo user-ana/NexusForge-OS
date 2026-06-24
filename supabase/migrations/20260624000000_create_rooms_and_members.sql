@@ -65,16 +65,12 @@ CREATE POLICY "Profesores pueden eliminar sus propias aulas"
     FOR DELETE
     USING (auth.uid() = teacher_id);
 
--- Profesores pueden ver sus aulas; alumnos pueden ver aulas si están inscritos en room_members
-CREATE POLICY "Usuarios pueden ver aulas en las que participan"
+-- Todos los usuarios autenticados pueden ver/buscar aulas (necesario para buscar por código de acceso antes de unirse)
+CREATE POLICY "Usuarios pueden ver aulas"
     ON public.rooms
     FOR SELECT
     USING (
-        auth.uid() = teacher_id
-        OR EXISTS (
-            SELECT 1 FROM public.room_members 
-            WHERE room_id = id AND student_id = auth.uid()
-        )
+        auth.role() = 'authenticated'
     );
 
 -- ═══════════════════════════════════════════════
@@ -120,3 +116,16 @@ CREATE POLICY "Profesores y alumnos pueden salir o borrar miembros"
             WHERE id = auth.uid() AND role = 'maestro'
         )
     );
+
+-- ═══════════════════════════════════════════════
+-- Corrección: Permitir a usuarios autenticados ver perfiles
+-- (Necesario para que el maestro y compañeros vean los datos del perfil de otros miembros)
+-- ═══════════════════════════════════════════════
+
+DROP POLICY IF EXISTS "Usuarios pueden ver su propio perfil" ON public.profiles;
+DROP POLICY IF EXISTS "Usuarios pueden ver perfiles" ON public.profiles;
+
+CREATE POLICY "Usuarios pueden ver perfiles"
+    ON public.profiles
+    FOR SELECT
+    USING (auth.role() = 'authenticated');

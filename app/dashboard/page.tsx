@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { mockDb, type MockClass, type MockStudent, type MockProject, type MockGroup, type MockTask, type MockChatMessage } from "@/lib/mock-db";
-import { fetchRooms, mapSupabaseRoomToMockClass } from "@/lib/supabase";
+import { fetchRooms, mapSupabaseRoomToMockClass, fetchRoomMembers } from "@/lib/supabase";
 
 // ═══════════════════════════════════════════════
 // NexusForge OS — Dashboard Principal (Reactivo)
@@ -66,7 +66,37 @@ function DashboardPageContent() {
       setClasses([]);
     }
 
-    setStudents(mockDb.getStudents());
+    let finalStudents = mockDb.getStudents();
+    if (user && classId) {
+      const { members, error } = await fetchRoomMembers(classId);
+      if (!error && members) {
+        const mappedStudents = members.map((profile) => {
+          const existingMock = finalStudents.find(
+            (s) => s.id === profile.id || s.username === profile.username
+          );
+          return {
+            id: profile.id,
+            username: profile.username,
+            email: existingMock?.email || `${profile.username}@gmail.com`,
+            specialty: profile.specialty || "Estudiante",
+            role: profile.role,
+            classIds: existingMock?.classIds 
+              ? Array.from(new Set([...existingMock.classIds, classId])) 
+              : [classId],
+            classGroupIds: existingMock?.classGroupIds || {},
+          };
+        });
+
+        const otherStudents = finalStudents.filter(
+          (s) => !mappedStudents.some((ms) => ms.id === s.id)
+        );
+        finalStudents = [...otherStudents, ...mappedStudents];
+      } else {
+        console.error("Error al cargar estudiantes del aula desde Supabase:", error);
+      }
+    }
+
+    setStudents(finalStudents);
     setProjects(mockDb.getProjects());
     setGroups(mockDb.getGroups());
     setTasks(mockDb.getTasks());
